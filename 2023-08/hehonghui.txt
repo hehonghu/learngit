@@ -1,0 +1,177 @@
+#请改为md文件查看
+
+# Git学习
+- 注意区分 版本库(本地仓库)，工作区，暂存区，本地仓库的概念
+- **工作区**就是在电脑里能看到的目录，工作区有一个隐藏目录**.git**，这个目录里面存储的就是暂存区和版本库(本地仓库)，版本库中会有多个分支，每个分支会有多个版本，分支就像树的树干和树枝一样，分支之间会有某些相同的版本，也会有某个主分支**master(main)**[]()
+  ![工作区，暂存区和版本库](/image/0.jpg)
+
+- 仓库https地址 https://[gitee/github].com/[用户名]/[仓库名].git
+- 仓库ssh地址 git@[gitee/github].com:[用户名]/[仓库名].git
+- git可以使用https协议和ssh协议来认证身份和传输数据，https方式的认证身份需要输入用户名密码登录，可以使用ssh的方式认证身份避免输入用户名，密码的麻烦，但是只能对自己拥有的和是管理员的仓库免密，方法如下使用命令在用户目录下生成.ssh目录，里面存放了生成的公匙，id_rsa.pub和私匙id_rsa
+```ssh-keygen -t rsa -C "备注信息"```
+(备注信息随便填，默认是用户名@主机名，无所谓，在向gitee和github上添加公匙的时候会默认作为Title，这个是linux里面的命令，windows可以在git bash里面使用)，将公匙上传到gitee或github个人设置里面的公匙中，最后在git bash中调用如下命令验证
+```ssh -t git@[gitee/github].com```
+- 在我目前的理解中在gitee和github上配置了ssh公匙之后，需要git push的时候就会根据公匙找到某个账户，判断公匙是否和密匙匹配，判断主机的身份
+- git中的user.email的作用应该是在能够提交的时候记录提交的身份信息，没有判断是否有提交权限的功能，user.name在能提交且提交的身份的email在网站上没有对应用户的时候作为用户名
+- 对文件进行修改，增加，删除，都会在工作区表现出来，需要通过git add提交到暂存区，通过git commit提交到本地仓库，最后通过git push提交到远程仓库
+- 在git中head表示当前版本，每一次提交都会产生一个版本，head^表示上一个版本，head^^表示上两个版本，以此类推，为了方便head~100表示上100个版本
+- 实际开发中master分支仅用来发布新版本，平时不能再上面干活，在dev分支上干活
+![git分支实际工作使用情况](image/1.png)
+# 常用命令
+
+## git init 
+	将当前目录初始化为一个版本库(仓库)，交给git管理
+	- git init
+## git config
+    配置全局的用户名，email,密码
+    - git config --global user.name "hehonghui"
+    - git config --global user.email "1917077051@qq.com"
+    - git config --global user.password "password"
+## git add 
+	将工作区文件变化添加到暂存区
+	- git add file1.txt
+	- git add file1.txt file2.txt
+	- git add .
+
+## git commit
+	将暂存区中所有的变化都提交到本地仓库的对应分支上，字符串内指定提交的备注
+	- git commit -m "提交文件“
+
+## git push
+    本地仓库当前分支的所有版本变化提交到远程仓库对应分支，如果对应分支不存在就会创建指定远程仓库分支
+    - git push
+    将指定分支的本地仓库内容提交到远程仓库，如果远程仓库不存在对应的分支就创建
+    - git push origin master
+    将本地仓库指定分支推送到远程仓库指定分支
+    - git push origin [本地仓库分支]:[远程仓库分支]
+    删除远程仓库分支
+    - git push origin -d dev
+    - git push origin --delete dev
+    - git push origin :dev
+    推送标签到远程
+    git push origin v1.0
+    推送所有未推送标签到远程
+    git push origin --tags
+    删除远程仓库的指定标签(本地仓库的标签未删除)
+    git push origin :refs/tags/v1.1
+
+## git status
+	查看仓库状态，几个在工作区的变化没有提交到暂存区，几个暂存区的变化没有提交到本地仓库
+	- git status
+
+## git diff
+	查看暂存区的文件和工作区的文件有什么区别
+	- git diff 3.txt
+
+## git reset
+	重置工作区到某个版本
+	- git reset --hard head^
+	- git reset --hard 版本号
+    将暂存区提交撤销，工作区不变
+    - git reset head^
+
+    将暂存区的某个文件的变化撤销，放回工作区
+    - git reset 1.txt
+    - git reset head 1.txt
+    
+## git log
+	查看日志
+	- git log
+    查看带有分支合并图的日志
+    - git log --graph
+
+## git reflog
+	查看每一次commit或reset命令，当回退到之前的版本找不到曾经最新版本的的版本号，无法使用git reset --hard 版本号的方式回到曾经的最新版时可以通过此命令找出曾经最新版本的版本号
+	- git reflog
+
+## git checkout
+    将工作区指定的文件退回到此文件上一次git add 或 git commit的状态
+    - git checkout -- 1.txt
+    创建并切换分支
+    - git checkout -b dev
+    创建远程仓库的某个分支到本地并切换到此分支
+    - git checkout -b dev origin/dev
+
+## git rm
+    删除某个文件并提交到暂存区，和手动删除文件后git add效果一样
+    - git rm 1.txt
+
+## git remote
+    给本地仓库添加一个远程仓库并指定远程仓库名
+    - git remote add origin 远程仓库地址
+    显示远程仓库的信息
+    - git remote -v
+    根据远程仓库名字删除本地的远程仓库配置
+    - git remote rm origin
+    添加远程仓库配置
+    - git remote add origin [https地址/ssh地址]
+
+## git branch
+    创建指定分支
+    - git branch dev
+    创建远程仓库指定分支到本地
+    - git branch dev origin/dev
+    显示当前分支
+    - git branch
+    显示本地和远程仓库的所有分支
+    - git branch -a
+    删除合并过的指定分支
+    - git branch -d dev
+    删除没有合并过的指定分支
+    - git branch -D dev
+    建立本地分支和远程分支的关联
+    - git branch --set-upstream branch-name origin/branch-name
+## git merge
+    将指定分支合并到当前分支
+    - git merge dev
+    将指定分支合并到当前分支，禁用fastfoward(直接移动指针，这种情况下删除分支会丢失分支信息)
+    - git merge --no-ff -m "merge with no-ff" dev
+## git switch
+    创建并切换到指定分支
+    - git switch -c dev
+    切换到指定分支
+    - git switch dev
+## git stash
+    暂存某些没有提交的工作内容
+    - git stash
+    显示所有的stash信息
+    - git stash list
+    加载某个stash信息
+    - git stash apply stash@{0}
+    删除某个stash信息
+    - git stash drop stash@{0}
+    加载并删除某个stash信息
+    - git stash pop stash@{0}
+
+## git cherry-pick 
+    将某个版本的提交合并到当前分支
+    git cherry-pick [commit-id]
+
+## git rebase
+    将push前pull操作合并导致的混乱的提交记录梳理成一条直线清楚的提交记录
+    - git base
+
+## git tag
+    打标签
+    - git tag v1.0
+    - git tag v1.1 [commid-id]
+    - git tag -a v1.2 -m "message"
+    - git tag -a v1.3 -m "message" [commit-id]
+    显示所有的标签
+    - git tag
+    删除标签
+    git tag -d v1.0;
+
+## git show
+    查看标签信息
+    - git show [tagname]
+
+## 
+
+
+
+
+
+
+
+
